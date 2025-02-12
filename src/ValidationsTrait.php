@@ -5,6 +5,9 @@ namespace ModelValidations;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Validator;
 
+/**
+ * Trait para validar modelos antes de crearlos o actualizarlos
+ */
 trait ValidationsTrait
 {
     public static function bootValidationsTrait()
@@ -21,11 +24,15 @@ trait ValidationsTrait
     public function validate()
     {
         $rules = $this->getValidations();
+
         if (empty($rules)) {
-            return;
+            return true; // Evita fallos si no hay reglas de validación
         }
 
+        // Validar los atributos del modelo con las reglas definidas
         Validator::make($this->getAttributes(), $rules)->validate();
+
+        return true;
     }
 
     public function getValidations(): array
@@ -38,6 +45,6 @@ trait ValidationsTrait
             return $this->getUpdateValidations();
         }
 
-        return $this->validations ?? [];
+        return property_exists($this, 'validations') ? $this->validations : [];
     }
 }
