@@ -1,6 +1,6 @@
 <?php
 
-namespace Systemson\ModelValidations;
+namespace ModelValidations;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Validator;
