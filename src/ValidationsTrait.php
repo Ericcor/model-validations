@@ -1,50 +1,53 @@
 <?php
 
-namespace ModelValidations;
+namespace Systemson\ModelValidations;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Validator;
 
 /**
- * Trait para validar modelos antes de crearlos o actualizarlos
+ *
  */
 trait ValidationsTrait
 {
-    public static function bootValidationsTrait()
+    public static function boot()
     {
-        static::creating(function (Model $model) {
+        parent::boot();
+
+        self::creating(function (Model $model) {
             $model->validate();
         });
 
-        static::updating(function (Model $model) {
+        self::updating(function (Model $model) {
             $model->validate();
         });
     }
 
     public function validate()
     {
-        $rules = $this->getValidations();
-
-        if (empty($rules)) {
-            return true; // Evita fallos si no hay reglas de validación
+        if (empty($this->getValidations())) {
+            return true;
         }
 
-        // Validar los atributos del modelo con las reglas definidas
-        Validator::make($this->getAttributes(), $rules)->validate();
+        Validator::make(
+            $this->getAttributes(),
+            $this->getValidations()
+        )->validate();
 
         return true;
     }
 
-    public function getValidations(): array
+    public function getValidations()
     {
         if (!$this->exists && method_exists($this, 'getCreateValidations')) {
             return $this->getCreateValidations();
         }
 
+
         if (method_exists($this, 'getUpdateValidations')) {
             return $this->getUpdateValidations();
         }
 
-        return property_exists($this, 'validations') ? $this->validations : [];
+        return $this->validations ?? [];
     }
 }
